@@ -1,0 +1,87 @@
+{
+    "name": "ruvelo/statamic-security-alerts",
+    "description": "A Security alerts page and dashboard widget in the Statamic Control Panel: which installed packages are vulnerable, exploited ones first. Built on ruvelo/laravel-security-alerts.",
+    "keywords": [
+        "statamic",
+        "statamic-addon",
+        "laravel",
+        "security",
+        "vulnerabilities",
+        "advisories",
+        "cisa-kev",
+        "composer-audit"
+    ],
+    "license": "MIT",
+    "type": "statamic-addon",
+    "homepage": "https://github.com/Ruvelo/statamic-security-alerts",
+    "authors": [
+        {
+            "name": "François Bultez",
+            "homepage": "https://github.com/francoisbultez",
+            "role": "Developer"
+        }
+    ],
+    "require": {
+        "php": "^8.3",
+        "ruvelo/laravel-security-alerts": "^1.0",
+        "statamic/cms": "^5.0|^6.0"
+    },
+    "require-dev": {
+        "larastan/larastan": "^3.13",
+        "laravel/pint": "^1.32",
+        "orchestra/testbench": "^10.0|^11.0",
+        "phpunit/phpunit": "^11.5|^12.0"
+    },
+    "autoload": {
+        "psr-4": {
+            "Ruvelo\\StatamicSecurityAlerts\\": "src/"
+        }
+    },
+    "autoload-dev": {
+        "psr-4": {
+            "Ruvelo\\StatamicSecurityAlerts\\Tests\\": "tests/"
+        }
+    },
+    "extra": {
+        "statamic": {
+            "name": "Security Alerts",
+            "slug": "security-alerts",
+            "description": "Vulnerable packages, exploited ones first, in the Control Panel"
+        },
+        "laravel": {
+            "providers": [
+                "Ruvelo\\StatamicSecurityAlerts\\ServiceProvider"
+            ]
+        }
+    },
+    "scripts": {
+        "test": "phpunit",
+        "lint": "pint --test",
+        "format": "pint",
+        "analyse": "phpstan analyse --memory-limit=1G",
+        "check": [
+            "@lint",
+            "@analyse",
+            "@test"
+        ]
+    },
+    "config": {
+        "sort-packages": true,
+        "allow-plugins": {
+            "pixelfear/composer-dist-plugin": true
+        }
+    },
+    "minimum-stability": "stable",
+    "prefer-stable": true,
+    "support": {
+        "issues": "https://github.com/Ruvelo/statamic-security-alerts/issues",
+        "source": "https://github.com/Ruvelo/statamic-security-alerts"
+    },
+    "scripts-descriptions": {
+        "test": "Run the test suite",
+        "lint": "Check code style",
+        "format": "Fix code style",
+        "analyse": "Run static analysis",
+        "check": "Lint, analyse and test: what CI runs"
+    }
+}
