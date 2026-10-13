@@ -18,9 +18,12 @@ jobs:
           extensions: pdo_sqlite, mbstring, intl, gd
           coverage: none
 
-      # ruvelo/laravel-security-alerts is on GitHub but not yet on Packagist.
+      # ruvelo/laravel-security-alerts and its core, ruvelo/security-advisories, are on
+      # GitHub but not yet on Packagist.
       - name: Find laravel-security-alerts
-        run: composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+        run: |
+          composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+          composer config repositories.sa vcs https://github.com/Ruvelo/security-advisories
 
       - name: Install dependencies
         run: composer update --prefer-dist --no-interaction --no-progress
@@ -54,7 +57,9 @@ jobs:
           coverage: none
 
       - name: Find laravel-security-alerts
-        run: composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+        run: |
+          composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+          composer config repositories.sa vcs https://github.com/Ruvelo/security-advisories
 
       - name: Install dependencies
         run: |

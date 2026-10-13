@@ -5,8 +5,11 @@ declare(strict_types=1);
 namespace Ruvelo\StatamicSecurityAlerts;
 
 use Carbon\CarbonImmutable;
+use Illuminate\Contracts\Cache\Repository;
 use Illuminate\Support\Collection;
+use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Schema;
+use Ruvelo\SecurityAdvisories\Report;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
 use Throwable;
@@ -29,7 +32,10 @@ final readonly class Overview
         public bool $installed,
         public Collection $alerts,
         public ?array $lastCheck,
+        public ?string $source = null,
     ) {}
+
+    private const SOURCE_KEY = 'statamic-security-alerts:source';
 
     public static function current(): self
     {
@@ -39,7 +45,44 @@ final readonly class Overview
 
         $alerts = SecurityAlerts::open();
 
-        return new self(true, $alerts, SecurityAlerts::lastCheck() ?? self::lastCheckFromAlerts($alerts));
+        $last = SecurityAlerts::lastCheck() ?? self::lastCheckFromAlerts($alerts);
+
+        return new self(true, $alerts, $last, self::sourceOf($last['checked_at'] ?? null));
+    }
+
+    /**
+     * The core's last-check record doesn't say where the answers came from, so
+     * "Check now" notes it here, with the time. It only counts while it is
+     * from the last check on record: a later scheduled check outdates it.
+     */
+    public static function rememberSource(Report $report): void
+    {
+        self::cache()->forever(self::SOURCE_KEY, [
+            'at' => CarbonImmutable::now()->toIso8601String(),
+            'label' => SecurityAlerts::sourceLabel($report),
+        ]);
+    }
+
+    private static function sourceOf(?CarbonImmutable $checkedAt): ?string
+    {
+        if ($checkedAt === null) {
+            return null;
+        }
+
+        $data = self::cache()->get(self::SOURCE_KEY);
+
+        if (! is_array($data) || ! is_string($data['at'] ?? null) || ! is_string($data['label'] ?? null)) {
+            return null;
+        }
+
+        return CarbonImmutable::parse($data['at'])->gte($checkedAt) ? $data['label'] : null;
+    }
+
+    private static function cache(): Repository
+    {
+        $store = config('security-alerts.cache.store');
+
+        return Cache::store(is_string($store) && $store !== '' ? $store : null);
     }
 
     public function total(): int

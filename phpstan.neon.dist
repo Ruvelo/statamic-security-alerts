@@ -7,3 +7,9 @@ parameters:
         - src
         - routes
     treatPhpDocTypesAsCertain: false
+    ignoreErrors:
+        # The core's exceptions don't extend SecurityAlertsException, and SecurityAlerts::check() doesn't declare them.
+        -
+            identifier: catch.neverThrown
+            message: '#SecurityAdvisoriesException is never thrown#'
+            path: src/Http/Controllers/SecurityAlertsController.php

@@ -7,6 +7,7 @@ namespace Ruvelo\StatamicSecurityAlerts\Http\Controllers;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Str;
 use Illuminate\View\View;
+use Ruvelo\SecurityAdvisories\Exceptions\SecurityAdvisoriesException;
 use Ruvelo\SecurityAlerts\Exceptions\SecurityAlertsException;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
 use Ruvelo\StatamicSecurityAlerts\Access;
@@ -34,11 +35,12 @@ class SecurityAlertsController extends CpController
 
         try {
             $result = SecurityAlerts::check(fresh: true);
-        } catch (SecurityAlertsException $e) {
+        } catch (SecurityAlertsException|SecurityAdvisoriesException $e) {
             return redirect(cp_route('security-alerts.index'))->with('security-alerts.error', $e->getMessage());
         }
 
         $report = $result->report;
+        Overview::rememberSource($report);
         $message = $report->isClean()
             ? 'Checked '.Str::plural('package', $report->packageCount(), true).': no known vulnerabilities.'
             : Str::plural('vulnerability', count($report->findings), true).' found in '.Str::plural('package', count($report->affectedPackages()), true).'.';

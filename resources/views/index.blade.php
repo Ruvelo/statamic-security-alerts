@@ -8,7 +8,8 @@
         $safeUrl = fn (?string $url): ?string => $url !== null && preg_match('#^https?://#i', $url) ? $url : null;
         $summary = $last
             ? 'Last checked '.$last['checked_at']->diffForHumans()
-                .($last['packages'] > 0 ? ', '.number_format($last['packages']).' '.\Illuminate\Support\Str::plural('package', $last['packages']).' looked at.' : '.')
+                .($last['packages'] > 0 ? ', '.number_format($last['packages']).' '.\Illuminate\Support\Str::plural('package', $last['packages']).' looked at' : '')
+                .($overview->source !== null ? ', via '.$overview->source : '').'.'
             : 'Never checked.';
     @endphp
 
@@ -84,7 +85,7 @@
                                     @if ($alert->isExploited())
                                         <span class="sa-badge sa-badge--exploited">Exploited (KEV)</span>
                                     @else
-                                        <span class="sa-badge sa-badge--{{ $alert->severity->value }}">{{ $alert->severity === \Ruvelo\SecurityAlerts\Severity::Unknown ? 'Unrated' : $alert->severity->label() }}</span>
+                                        <span class="sa-badge sa-badge--{{ $alert->severity->value }}">{{ $alert->severity === \Ruvelo\SecurityAdvisories\Severity::NotRated ? 'Unrated' : $alert->severity->label() }}</span>
                                     @endif
                                 </td>
                                 <td data-label="Package">
@@ -132,6 +133,6 @@
             </div>
         @endif
 
-        <p class="sa-foot">Advisories come from Packagist, OSV.dev and CISA's Known Exploited Vulnerabilities catalogue. Only package names and versions leave your server.</p>
+        <p class="sa-foot">Advisories come from Valtry's signed Advisory API or, as a fallback, Packagist, OSV.dev and CISA's Known Exploited Vulnerabilities catalogue. Only package names (and, for the public feeds, versions) leave your server.</p>
     </div>
 @endsection

@@ -6,14 +6,16 @@ namespace Ruvelo\StatamicSecurityAlerts\Tests;
 
 use Carbon\CarbonImmutable;
 use Illuminate\Support\Facades\Http;
+use Psr\Http\Client\ClientInterface;
+use Ruvelo\SecurityAdvisories\KevEntry;
+use Ruvelo\SecurityAdvisories\Severity;
 use Ruvelo\SecurityAlerts\Ecosystem;
 use Ruvelo\SecurityAlerts\Finding;
-use Ruvelo\SecurityAlerts\KevEntry;
 use Ruvelo\SecurityAlerts\Report;
 use Ruvelo\SecurityAlerts\Scanner;
 use Ruvelo\SecurityAlerts\SecurityAlertsServiceProvider;
-use Ruvelo\SecurityAlerts\Severity;
 use Ruvelo\StatamicSecurityAlerts\ServiceProvider;
+use Ruvelo\StatamicSecurityAlerts\Tests\Support\HttpFacadeClient;
 use Statamic\Facades\Role;
 use Statamic\Facades\User;
 use Statamic\Testing\AddonTestCase;
@@ -31,6 +33,7 @@ abstract class TestCase extends AddonTestCase
 
         // Nothing here may reach Packagist, OSV or CISA.
         Http::preventStrayRequests();
+        $this->app->instance(ClientInterface::class, new HttpFacadeClient);
     }
 
     protected function getPackageProviders($app)
@@ -45,6 +48,7 @@ abstract class TestCase extends AddonTestCase
         $app['config']->set('app.key', 'base64:'.base64_encode(str_repeat('s', 32)));
         $app['config']->set('database.default', 'testing');
         $app['config']->set('cache.default', 'array');
+        $app['config']->set('security-alerts.source', 'public');
         $app['config']->set('security-alerts.notify.mail', []);
         $app['config']->set('security-alerts.notify.slack', null);
         $app['config']->set('statamic.editions.pro', true);
@@ -81,6 +85,7 @@ abstract class TestCase extends AddonTestCase
             checked: [Ecosystem::Composer, Ecosystem::Npm],
             problems: $complete ? [] : ['package-lock.json could not be read.'],
             checkedAt: CarbonImmutable::now(),
+            sources: ['composer' => 'valtry', 'npm' => 'valtry'],
         );
 
         $this->app->instance(Scanner::class, new class($report) extends Scanner
@@ -99,7 +104,7 @@ abstract class TestCase extends AddonTestCase
         return new Finding(
             ecosystem: Ecosystem::Composer,
             package: 'livewire/livewire',
-            version: '3.6.2',
+            installed: '3.6.2',
             advisoryId: 'PKSA-g5js-3ypd-k2kr',
             title: 'Livewire is vulnerable to remote command execution',
             severity: Severity::Critical,
@@ -115,13 +120,13 @@ abstract class TestCase extends AddonTestCase
         return new Finding(
             ecosystem: Ecosystem::Npm,
             package: 'axios',
-            version: '1.7.0',
+            installed: '1.7.0',
             advisoryId: 'GHSA-aaaa-bbbb-cccc',
             title: 'axios SSRF',
             severity: Severity::Medium,
             link: 'javascript:alert(1)',
             fixedIn: '1.8.2',
-            dev: true,
+            isDev: true,
         );
     }
 }

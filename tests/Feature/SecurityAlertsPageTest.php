@@ -5,7 +5,10 @@ declare(strict_types=1);
 namespace Ruvelo\StatamicSecurityAlerts\Tests\Feature;
 
 use Carbon\CarbonImmutable;
+use Ruvelo\SecurityAdvisories\Exceptions\SecurityAdvisoriesException;
+use Ruvelo\SecurityAdvisories\Report;
 use Ruvelo\SecurityAlerts\Models\SecurityAlert;
+use Ruvelo\SecurityAlerts\Scanner;
 use Ruvelo\SecurityAlerts\SecurityAlerts;
 use Ruvelo\StatamicSecurityAlerts\Tests\TestCase;
 
@@ -108,6 +111,36 @@ class SecurityAlertsPageTest extends TestCase
 
         $this->assertSame(1, SecurityAlert::query()->open()->exploited()->count());
         $this->assertNotNull(SecurityAlerts::lastCheck());
+    }
+
+    public function test_the_page_names_the_source_of_the_check_it_just_ran(): void
+    {
+        $this->fakeReport([$this->exploitedFinding()]);
+        $user = $this->superUser();
+
+        $this->actingAs($user)->post(cp_route('security-alerts.check'));
+
+        $this->actingAs($user)->get(cp_route('security-alerts.index'))
+            ->assertOk()
+            ->assertSee('105 packages looked at, via Valtry, signed.');
+    }
+
+    public function test_a_failed_check_shows_the_message_from_the_core(): void
+    {
+        $this->app->instance(Scanner::class, new class extends Scanner
+        {
+            public function __construct() {}
+
+            public function scan(bool $fresh = false): Report
+            {
+                throw new SecurityAdvisoriesException('Valtry and the public feeds are both unreachable.');
+            }
+        });
+
+        $this->actingAs($this->superUser())
+            ->post(cp_route('security-alerts.check'))
+            ->assertRedirect(cp_route('security-alerts.index'))
+            ->assertSessionHas('security-alerts.error', 'Valtry and the public feeds are both unreachable.');
     }
 
     public function test_check_now_needs_the_permission(): void

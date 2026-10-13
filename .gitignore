@@ -8,3 +8,5 @@
 /build/
 /tests/__fixtures__/dev-null/
 /art/*.html
+/composer.local.json
+/composer.local.lock

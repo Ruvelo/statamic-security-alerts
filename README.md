@@ -59,7 +59,7 @@ Then open **Tools, Security alerts** in the Control Panel.
 - **A dashboard widget** with counts, red when anything is exploited, and a stale warning after 48 hours.
 - **A permission**, `view security alerts`, so you decide which roles see it.
 - **Statamic 5 and 6**, with plain Blade views and one stylesheet: no JavaScript build.
-- **No network from the page.** It reads the table the check fills; only a check (the scheduler, the command or Check now) calls Packagist, OSV.dev and CISA, and only package names and versions leave your server.
+- **No network from the page.** It reads the table the check fills; only a check (the scheduler, the command or Check now) calls Valtry's Advisory API or, as a fallback, Packagist, OSV.dev and CISA, and only package names (and, for the public feeds, versions) leave your server.
 - Everything else comes from laravel-security-alerts: the daily schedule, mail and Slack notifications, events and the artisan command.
 
 Watching many sites? [Valtry](https://valtry.co.uk/?utm_source=ruvelo&utm_medium=github&utm_campaign=statamic-security-alerts) scans them from the outside.
@@ -130,7 +130,7 @@ Notes for submitting the addon at [statamic.com/addons](https://statamic.com/add
 - **Description:** use the first two paragraphs of this README, then the install steps. The screenshots are in `art/` (page, dashboard, dark, mobile, empty state and the Statamic 5 dashboard).
 - **Categories:** Security, Developer tools. **Source and support:** this repository and its issues.
 - Tag a release (`v1.0.0`) on GitHub and submit it from the Statamic Marketplace seller dashboard. The addon's `composer.json` already carries the `statamic-addon` type and the `extra.statamic` name and description the Marketplace reads.
-- **Packagist:** laravel-security-alerts must be on Packagist before this addon can be installed from there; until then sites need `composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts`.
+- **Packagist:** laravel-security-alerts (and its core, security-advisories) must be on Packagist before this addon can be installed from there; until then sites need `composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts` and `composer config repositories.sa vcs https://github.com/Ruvelo/security-advisories`.
 
 ## Contributing
 

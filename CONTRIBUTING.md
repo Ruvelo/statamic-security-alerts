@@ -13,11 +13,12 @@ Thanks for helping! Bug reports, docs fixes and features are all welcome.
 
 You need PHP 8.3+ and Composer. No database server: tests run on in-memory SQLite, and Statamic is flat-file.
 
-`ruvelo/laravel-security-alerts` is on GitHub but not yet on Packagist, so tell Composer where it is (this stays out of the committed `composer.json`; don't commit it):
+`ruvelo/laravel-security-alerts` and its core, `ruvelo/security-advisories`, are on GitHub but not yet on Packagist, so tell Composer where they are (this stays out of the committed `composer.json`; don't commit it):
 
 ```bash
 git clone https://github.com/<you>/statamic-security-alerts && cd statamic-security-alerts
 composer config repositories.lsa vcs https://github.com/Ruvelo/laravel-security-alerts
+composer config repositories.sa vcs https://github.com/Ruvelo/security-advisories
 composer install
 composer check
 ```
